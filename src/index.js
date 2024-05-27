@@ -1,8 +1,8 @@
+// index.js
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LayoutRoutes from './pages/LayoutRoutes'; // Importa el LayoutRoutes actualizado
 import Allocations from './pages/Allocations';
 import Employees from './pages/Employees';
@@ -14,6 +14,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LayoutRoutes />}>
+          <Route index element={<Navigate to="/allocations" />} />
           <Route path="allocations" element={<Allocations />} />
           <Route path="employees" element={<Employees />} />
           <Route path="practices" element={<Practices />} />

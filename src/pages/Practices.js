@@ -1,11 +1,9 @@
 import React from 'react';
+import TablePractices from '../components/TablePractices';
 
 function Practices() {
   return (
-    <div>
-      <h1>Bienvenido a nuestra aplicación</h1>
-      <p>Esta es la página Practices.</p>
-    </div>
+    <TablePractices/>
   );
 }
 

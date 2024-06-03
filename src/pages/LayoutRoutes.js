@@ -7,7 +7,7 @@ const LayoutRoutes = () => {
       <nav>
         <ul>
           <li>
-            <Link to="/allocations">Allocations</Link>
+            <Link to="/assignments">Assignments</Link>
           </li>
           <li>
             <Link to="/employees">Employees</Link>

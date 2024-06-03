@@ -6,18 +6,18 @@ import Swal from "sweetalert2";
 import AddButton from './AddButton'; // Botón de agregar registro
 import ActionButtons from "./ActionButtons";
 
-const TableEmployees = () => {
-  const [data, setData] = useState([]);
+const TableProyects = () => {
+  const [data, setData] = useState([]); // Estado para almacenar los datos
 
   // useEffect para obtener los datos al montar el componente
   useEffect(() => {
-    fetchEmployees();
+    fetchProyects();
   }, []);
 
-  // Función para obtener los datos de los empleados desde la API
-  const fetchEmployees = () => {
+  // Función para obtener los datos de los Proyectos desde la API
+  const fetchProyects = () => {
     axios
-      .get(process.env.REACT_APP_API_EMPLOYEES)
+      .get(process.env.REACT_APP_API_PROYECTS)
       .then((response) => {
         setData(response.data);
       })
@@ -26,118 +26,102 @@ const TableEmployees = () => {
       });
   };
 
-  // Función para manejar la adición de un nuevo empleado
+  // Función para manejar la adición de un nuevo registro
   const handleAdd = () => {
     Swal.fire({
-      title: "Add New Employee",
+      title: "Add New Proyect",
       html: `
-        <input type="number" id="code" class="swal2-input" placeholder="ID">
-        <input type="text" id="name" class="swal2-input" placeholder="Name">
-        <input type="text" id="role" class="swal2-input" placeholder="Role">
-        <input type="text" id="practice" class="swal2-input" placeholder="Practice">
+        <input type="text" id="code" class="swal2-input" placeholder="Proyect">
       `,
       confirmButtonText: "Add",
       showCancelButton: true,
       preConfirm: () => {
         const code = Swal.getPopup().querySelector("#code").value;
-        const name = Swal.getPopup().querySelector("#name").value;
-        const role = Swal.getPopup().querySelector("#role").value;
-        const practice = Swal.getPopup().querySelector("#practice").value;
 
-        if (!code || !name || !role || !practice) {
+        if (!code) {
           Swal.showValidationMessage(`Please enter all fields`);
           return null;
         }
-        return { code, name, role, practice };
+        return {code};
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        const newEmployee = {
+        const newProyect = {
           code: result.value.code,
-          name: result.value.name,
-          role: result.value.role,
-          practice: result.value.practice,
         };
 
         axios
-          .post(process.env.REACT_APP_API_EMPLOYEES, newEmployee)
+          .post(process.env.REACT_APP_API_PROYECTS, newProyect)
           .then(() => {
-            fetchEmployees();
+            fetchProyects();
             Swal.fire({
               icon: "success",
               title: "Success!",
-              text: "The employee has been successfully added.",
+              text: "The proyect has been successfully added.",
             });
           })
           .catch((error) => {
-            console.error("Error adding employee:", error);
+            console.error("Error adding proyect:", error);
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: "Error when trying to add the employee.",
+              text: "Error when trying to add the proyect.",
             });
           });
       }
     });
   };
 
-  // Función para manejar la edición de un empleado existente
-  const handleEdit = (employee) => {
+  // Función para manejar la edición de un Proyecto existente
+  const handleEdit = (practice) => {
     Swal.fire({
-      title: "Update Employee",
+      title: "Update Practice",
       html: `
-        <input type="text" id="name" class="swal2-input" placeholder="Name" value="${employee.name}">
-        <input type="text" id="role" class="swal2-input" placeholder="Role" value="${employee.role}">
-        <input type="text" id="practice" class="swal2-input" placeholder="Practice" value="${employee.practice}">
+        <input type="text" id="newCode" class="swal2-input" placeholder="Practices" value="${practice.code}">
       `,
       confirmButtonText: "Save",
       showCancelButton: true,
       preConfirm: () => {
-        const name = Swal.getPopup().querySelector("#name").value;
-        const role = Swal.getPopup().querySelector("#role").value;
-        const practice = Swal.getPopup().querySelector("#practice").value;
+        const newCode = Swal.getPopup().querySelector("#newCode").value;
 
-        if (!name || !role || !practice) {
+        if (!newCode) {
           Swal.showValidationMessage(`Please enter all fields`);
           return null;
         }
-        return { name, role, practice };
+        return { newCode: newCode };
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        const updatedEmployee = {
-          code: employee.code, //Cambio?
-          name: result.value.name,
-          role: result.value.role,
-          practice: result.value.practice,
+        const updatePractice = {
+          newCode: result.value.newCode,
         };
 
         axios
-          .put(`${process.env.REACT_APP_API_EMPLOYEES}/${employee.code}`, updatedEmployee)
+          .put(`${process.env.REACT_APP_API_PROYECTS}/${practice.code}`, updatePractice)
           .then(() => {
-            fetchEmployees();
+            fetchProyects();
             Swal.fire({
               icon: "success",
               title: "Success!",
-              text: "The employee has been successfully updated.",
+              text: "The practice has been successfully updated.",
             });
           })
           .catch((error) => {
-            console.error("Error editing employee:", error);
+            console.error("Error editing practice:", error);
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: "Error when trying to update the employee.",
+              text: "Error when trying to update the practice.",
             });
           });
       }
     });
   };
-  
-// Función para manejar la eliminación de un empleado
-const handleDelete = (employee) => {
+
+  // Función para manejar la eliminación de un Proyecto
+const handleDelete = (proyect) => {
   Swal.fire({
-    title: `Are you sure you want to delete ${employee.name}?`,
+    title: `Are you sure you want to delete ${proyect.code}?`,
     text: "This action cannot be undone",
     icon: "warning",
     showCancelButton: true,
@@ -148,13 +132,13 @@ const handleDelete = (employee) => {
   }).then((result) => {
     if (result.isConfirmed) {
       axios
-        .delete(`${process.env.REACT_APP_API_EMPLOYEES}/${employee.code}`)
+        .delete(`${process.env.REACT_APP_API_PROYECTS}/${proyect.code}`)
         .then((response) => {
           if (response.status === 204) {
-            fetchEmployees();
+            fetchProyects();
             Swal.fire({
               title: "Success!",
-              text: "Employee deleted successfully.",
+              text: "The proyect has been successfully deleted.",
               icon: "success",
             });
           } else {
@@ -167,14 +151,14 @@ const handleDelete = (employee) => {
               case 404:
                 Swal.fire({
                   title: "Error",
-                  text: "Employee not found.",
+                  text: "Proyect not found.",
                   icon: "error",
                 });
                 break;
               case 409:
                 Swal.fire({
                   title: "Error",
-                  text: "Cannot delete employee due to a conflict.",
+                  text: "Cannot delete proyect due to a conflict.",
                   icon: "error",
                 });
                 break;
@@ -187,10 +171,10 @@ const handleDelete = (employee) => {
                 break;
             }
           } else {
-            console.error("Error deleting employee:", error);
+            console.error("Error deleting proyect:", error);
             Swal.fire({
               title: "Error",
-              text: "Error when trying to delete the employee.",
+              text: "Error when trying to delete the proyect.",
               icon: "error",
             });
           }
@@ -199,13 +183,9 @@ const handleDelete = (employee) => {
   });
 };
 
-
   // Definición de las columnas de la tabla
   const columns = [
-    { name: "code", label: "ID" },
-    { name: "name", label: "Employee Name" },
-    { name: "role", label: "Role" },
-    { name: "practice", label: "Practice" },
+    { name: "code", label: "Proyect" },
     {
       name: "Actions",
       label: "Actions",
@@ -214,11 +194,11 @@ const handleDelete = (employee) => {
         sort: false,
         empty: true,
         customBodyRenderLite: (dataIndex) => {
-          const employee = data[dataIndex];
+          const proyect = data[dataIndex];
           return (
             <ActionButtons 
-              onEdit={() => handleEdit(employee)} 
-              onDelete={() => handleDelete(employee)} 
+              onEdit={() => handleEdit(proyect)} 
+              onDelete={() => handleDelete(proyect)} 
             />
           );
         },
@@ -226,7 +206,7 @@ const handleDelete = (employee) => {
     },
   ];
 
-  // Definición de las opciones de la tabla
+  // Personalización de la tabla
   const options = {
     download: true,
     customToolbar: () => {
@@ -274,15 +254,15 @@ const handleDelete = (employee) => {
 
       ws['!cols'] = colWidths;
 
-      XLSX.utils.book_append_sheet(wb, ws, "EmployeeData");
-      XLSX.writeFile(wb, "employee_data.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "ProyectData");
+      XLSX.writeFile(wb, "proyect_data.xlsx");
       return false;
     },
   };
 
   return (
     <MUIDataTable
-      title={"Employees Data"}
+      title={"Proyects Data"}
       data={data}
       columns={columns}
       options={options}
@@ -290,4 +270,4 @@ const handleDelete = (employee) => {
   );
 };
 
-export default TableEmployees;
+export default TableProyects;

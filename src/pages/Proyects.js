@@ -1,11 +1,9 @@
 import React from 'react';
+import TableProyects from '../components/TableProyects';
 
 function Proyects() {
   return (
-    <div>
-      <h1>Bienvenido a nuestra aplicación</h1>
-      <p>Esta es la página Proyects.</p>
-    </div>
+    <TableProyects/>
   );
 }
 

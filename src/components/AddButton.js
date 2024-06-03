@@ -7,7 +7,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 const AddButton = ({ onAdd }) => {
   return (
     <React.Fragment>
-      <IconButton onClick={onAdd} title="New Field ">
+      <IconButton onClick={onAdd} title="Add New Field ">
         <FontAwesomeIcon icon={faPlus} style={{ color: "#28a745" }} />
       </IconButton>
     </React.Fragment>

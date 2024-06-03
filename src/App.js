@@ -1,8 +1,8 @@
-import Table from './components/TableAllocations';
+
 
 function App() {
   return (
-    <Table/>
+    <h1>Its working!</h1>
   );
 }
 

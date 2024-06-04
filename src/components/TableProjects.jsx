@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import axios from "axios";
-import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-import AddButton from './AddButton'; // Botón de agregar registro
 import ActionButtons from "./ActionButtons";
+import createOptions from "./CustomDataTable";
 
-const TableProyects = () => {
+const TableProjects = () => {
   const [data, setData] = useState([]); // Estado para almacenar los datos
 
   // useEffect para obtener los datos al montar el componente
@@ -17,7 +16,7 @@ const TableProyects = () => {
   // Función para obtener los datos de los Proyectos desde la API
   const fetchProyects = () => {
     axios
-      .get(process.env.REACT_APP_API_PROYECTS)
+      .get(process.env.REACT_APP_API_PROJECTS)
       .then((response) => {
         setData(response.data);
       })
@@ -29,9 +28,9 @@ const TableProyects = () => {
   // Función para manejar la adición de un nuevo registro
   const handleAdd = () => {
     Swal.fire({
-      title: "Add New Proyect",
+      title: "Add New Project",
       html: `
-        <input type="text" id="code" class="swal2-input" placeholder="Proyect">
+        <input type="text" id="code" class="swal2-input" placeholder="Project">
       `,
       confirmButtonText: "Add",
       showCancelButton: true,
@@ -51,21 +50,21 @@ const TableProyects = () => {
         };
 
         axios
-          .post(process.env.REACT_APP_API_PROYECTS, newProyect)
+          .post(process.env.REACT_APP_API_PROJECTS, newProyect)
           .then(() => {
             fetchProyects();
             Swal.fire({
               icon: "success",
               title: "Success!",
-              text: "The proyect has been successfully added.",
+              text: "The project has been successfully added.",
             });
           })
           .catch((error) => {
-            console.error("Error adding proyect:", error);
+            console.error("Error adding project:", error);
             Swal.fire({
               icon: "error",
               title: "Error",
-              text: "Error when trying to add the proyect.",
+              text: "Error when trying to add the project.",
             });
           });
       }
@@ -97,7 +96,7 @@ const TableProyects = () => {
         };
 
         axios
-          .put(`${process.env.REACT_APP_API_PROYECTS}/${practice.code}`, updatePractice)
+          .put(`${process.env.REACT_APP_API_PROJECTS}/${practice.code}`, updatePractice)
           .then(() => {
             fetchProyects();
             Swal.fire({
@@ -119,9 +118,9 @@ const TableProyects = () => {
   };
 
   // Función para manejar la eliminación de un Proyecto
-const handleDelete = (proyect) => {
+const handleDelete = (project) => {
   Swal.fire({
-    title: `Are you sure you want to delete ${proyect.code}?`,
+    title: `Are you sure you want to delete ${project.code}?`,
     text: "This action cannot be undone",
     icon: "warning",
     showCancelButton: true,
@@ -132,13 +131,13 @@ const handleDelete = (proyect) => {
   }).then((result) => {
     if (result.isConfirmed) {
       axios
-        .delete(`${process.env.REACT_APP_API_PROYECTS}/${proyect.code}`)
+        .delete(`${process.env.REACT_APP_API_PROJECTS}/${project.code}`)
         .then((response) => {
-          if (response.status === 204) {
+          if (response.status === 200) {
             fetchProyects();
             Swal.fire({
               title: "Success!",
-              text: "The proyect has been successfully deleted.",
+              text: "The project has been successfully deleted.",
               icon: "success",
             });
           } else {
@@ -151,14 +150,14 @@ const handleDelete = (proyect) => {
               case 404:
                 Swal.fire({
                   title: "Error",
-                  text: "Proyect not found.",
+                  text: "Project not found.",
                   icon: "error",
                 });
                 break;
               case 409:
                 Swal.fire({
                   title: "Error",
-                  text: "Cannot delete proyect due to a conflict.",
+                  text: "Cannot delete project due to a conflict.",
                   icon: "error",
                 });
                 break;
@@ -171,10 +170,10 @@ const handleDelete = (proyect) => {
                 break;
             }
           } else {
-            console.error("Error deleting proyect:", error);
+            console.error("Error deleting project:", error);
             Swal.fire({
               title: "Error",
-              text: "Error when trying to delete the proyect.",
+              text: "Error when trying to delete the project.",
               icon: "error",
             });
           }
@@ -185,7 +184,7 @@ const handleDelete = (proyect) => {
 
   // Definición de las columnas de la tabla
   const columns = [
-    { name: "code", label: "Proyect" },
+    { name: "code", label: "Project" },
     {
       name: "Actions",
       label: "Actions",
@@ -194,11 +193,11 @@ const handleDelete = (proyect) => {
         sort: false,
         empty: true,
         customBodyRenderLite: (dataIndex) => {
-          const proyect = data[dataIndex];
+          const project = data[dataIndex];
           return (
             <ActionButtons 
-              onEdit={() => handleEdit(proyect)} 
-              onDelete={() => handleDelete(proyect)} 
+              onEdit={() => handleEdit(project)} 
+              onDelete={() => handleDelete(project)} 
             />
           );
         },
@@ -207,62 +206,11 @@ const handleDelete = (proyect) => {
   ];
 
   // Personalización de la tabla
-  const options = {
-    download: true,
-    customToolbar: () => {
-      return (
-        <AddButton onAdd={handleAdd} />
-      );
-    },
-    print: false,
-    viewColumns: true,
-    filter: true,
-    selectableRows: "none",
-    responsive: "standard",
-    textLabels: {
-      toolbar: {
-        downloadCsv: "Download",
-      },
-    },
-    onDownload: (buildHead, buildBody, columns, data) => {
-      const dataToExport = data.map((row) => {
-        let rowData = {};
-        row.data.forEach((value, index) => {
-          if (columns[index].name !== "Actions") {
-            rowData[columns[index].label] = value != null ? value.toString() : ""; // Manejar valores indefinidos/nulos
-          }
-        });
-        return rowData;
-      });
-
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(dataToExport);
-
-      // Calcular el ancho máximo de cada columna
-      const colWidths = columns
-        .filter(col => col.name !== "Actions")
-        .map(col => {
-          const maxWidth = Math.max(
-            col.label.length,
-            ...data.map(row => {
-              const value = row.data[columns.findIndex(c => c.label === col.label)];
-              return value != null ? value.toString().length : 0; // Manejar valores indefinidos/nulos
-            })
-          );
-          return { width: maxWidth + 2 }; // Añadir un poco de espacio extra
-        });
-
-      ws['!cols'] = colWidths;
-
-      XLSX.utils.book_append_sheet(wb, ws, "ProyectData");
-      XLSX.writeFile(wb, "proyect_data.xlsx");
-      return false;
-    },
-  };
+  const options = createOptions(handleAdd, columns);
 
   return (
     <MUIDataTable
-      title={"Proyects Data"}
+      title={"Projects Data"}
       data={data}
       columns={columns}
       options={options}
@@ -270,4 +218,4 @@ const handleDelete = (proyect) => {
   );
 };
 
-export default TableProyects;
+export default TableProjects;

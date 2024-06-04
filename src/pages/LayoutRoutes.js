@@ -16,7 +16,7 @@ const LayoutRoutes = () => {
             <Link to="/practices">Practices</Link>
           </li>
           <li>
-            <Link to="/proyects">Proyects</Link>
+            <Link to="/projects">Projects</Link>
           </li>
         </ul>
       </nav>

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import axios from "axios";
-import * as XLSX from "xlsx";
 import Swal from "sweetalert2";
-import AddButton from './AddButton'; // Botón de agregar registro
 import ActionButtons from "./ActionButtons";
+import createOptions from "./CustomDataTable";
 
 const TablePractices = () => {
   const [data, setData] = useState([]);
@@ -134,7 +133,7 @@ const handleDelete = (practice) => {
       axios
         .delete(`${process.env.REACT_APP_API_PRACTICES}/${practice.code}`)
         .then((response) => {
-          if (response.status === 204) {
+          if (response.status === 200) {
             fetchPractices();
             Swal.fire({
               title: "Success!",
@@ -207,58 +206,7 @@ const handleDelete = (practice) => {
   ];
 
   // Personalización de la tabla
-  const options = {
-    download: true,
-    customToolbar: () => {
-      return (
-        <AddButton onAdd={handleAdd} />
-      );
-    },
-    print: false,
-    viewColumns: true,
-    filter: true,
-    selectableRows: "none",
-    responsive: "standard",
-    textLabels: {
-      toolbar: {
-        downloadCsv: "Download",
-      },
-    },
-    onDownload: (buildHead, buildBody, columns, data) => {
-      const dataToExport = data.map((row) => {
-        let rowData = {};
-        row.data.forEach((value, index) => {
-          if (columns[index].name !== "Actions") {
-            rowData[columns[index].label] = value != null ? value.toString() : ""; // Manejar valores indefinidos/nulos
-          }
-        });
-        return rowData;
-      });
-
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.json_to_sheet(dataToExport);
-
-      // Calcular el ancho máximo de cada columna
-      const colWidths = columns
-        .filter(col => col.name !== "Actions")
-        .map(col => {
-          const maxWidth = Math.max(
-            col.label.length,
-            ...data.map(row => {
-              const value = row.data[columns.findIndex(c => c.label === col.label)];
-              return value != null ? value.toString().length : 0; // Manejar valores indefinidos/nulos
-            })
-          );
-          return { width: maxWidth + 2 }; // Añadir un poco de espacio extra
-        });
-
-      ws['!cols'] = colWidths;
-
-      XLSX.utils.book_append_sheet(wb, ws, "PracticeData");
-      XLSX.writeFile(wb, "practice_data.xlsx");
-      return false;
-    },
-  };
+  const options = createOptions(handleAdd, columns);
 
   return (
     <MUIDataTable

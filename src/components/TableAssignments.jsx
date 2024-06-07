@@ -2,20 +2,23 @@ import React, { useState, useEffect } from "react";
 import MUIDataTable from "mui-datatables";
 import axios from "axios";
 import Swal from "sweetalert2";
-import ActionButtons from "./ActionButtons";
-import ModalAssignments from "./ModalAssignments"; // Importa el modal
-import createOptions from "./CustomDataTable";
+import ActionButtons from "./ActionButtons"; //botones de editar y eliminar
+import ModalAssignments from "./ModalAssignments"; // Importa el modal personalizado
+import createOptions from "./CustomDataTable"; // Importa las opciones para la tabla y el formato para descargar el xlsx
 
 const TableAssignments = () => {
   const [data, setData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalInitialData, setModalInitialData] = useState(null);
+  const [loading, setLoading] = useState(true); // Estado para manejar la carga de datos
+  const [error, setError] = useState(null); // Estado para manejar errores
 
   useEffect(() => {
     fetchAssignments();
   }, []);
 
   const fetchAssignments = () => {
+    setLoading(true); // Inicia el estado de carga
     axios
       .get(process.env.REACT_APP_API_ASSIGNMENTS)
       .then((response) => {
@@ -36,9 +39,11 @@ const TableAssignments = () => {
           endDate: item.assignmentInfo.endDate
         }));
         setData(assignments);
+        setLoading(false); // Finaliza el estado de carga
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
+        setError("Error fetching data");
+        setLoading(false); // Finaliza el estado de carga, independientemente de si la solicitud fue exitosa o no
       });
   };
 
@@ -47,17 +52,20 @@ const TableAssignments = () => {
     setModalOpen(true);
   };
 
+  // Formatea la fecha al formato yyyy-MM-dd
   const formatDateForInput = (dateString) => {
-    // Si la cadena de fecha no está vacía
     if (dateString) {
-      // Separa el día, mes y año de la cadena de fecha
-      const [day, month, year] = dateString.split('/');
-      // Formatea la fecha al formato yyyy-MM-dd
-      return `${year}-${month}-${day}`;
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
     }
-    // Si la cadena de fecha está vacía, devuelve una cadena vacía
     return '';
   };
+  
 
   const handleEdit = (assignment) => {
     setModalInitialData({
@@ -72,7 +80,7 @@ const TableAssignments = () => {
         remark: assignment.remark,
         percentage: assignment.percentage,
         startDate: formatDateForInput(assignment.startDate),
-    endDate: formatDateForInput(assignment.endDate),
+        endDate: formatDateForInput(assignment.endDate),
       },
       practiceName: assignment.practiceName,
     });
@@ -84,45 +92,107 @@ const TableAssignments = () => {
       // Editar asignación existente
       axios
         .put(`${process.env.REACT_APP_API_ASSIGNMENTS}/${formData.employeeCode}`, formData)
-        .then(() => {
-          fetchAssignments();
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "The assignment has been successfully updated.",
-          });
+        .then((response) => {
+          if (response.status === 204) {
+            fetchAssignments();
+            Swal.fire({
+              icon: "success",
+              title: "Success!",
+              text: "The assignment has been successfully updated.",
+            });
+          } else {
+            throw new Error("Unexpected status code");
+          }
         })
         .catch((error) => {
-          console.error("Error editing assignment:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Error when trying to update the assignment.",
-          });
+          if (error.response) {
+            if (error.response.status === 400) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Bad request. Please check your input data.",
+              });
+            } 
+            else if (error.response.status === 404) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Employee Code Not Found. Please try again",
+              });
+            } 
+            else if (error.response.status === 409) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Cannot Update assignment due to a conflict.",
+              });
+            } 
+            else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Unexpected error occurred.",
+              });
+            }
+          } else {
+            console.error("Error editing assignment:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Error when trying to update the assignment.",
+            });
+          }
         });
     } else {
       // Agregar nueva asignación
       axios
         .post(process.env.REACT_APP_API_ASSIGNMENTS, formData)
-        .then(() => {
-          fetchAssignments();
-          Swal.fire({
-            icon: "success",
-            title: "Success!",
-            text: "The assignment has been successfully added.",
-          });
+        .then((response) => {
+          if (response.status === 204) {
+            fetchAssignments();
+            Swal.fire({
+              icon: "success",
+              title: "Success!",
+              text: "The assignment has been successfully added.",
+            });
+          } else {
+            throw new Error("Unexpected status code");
+          }
         })
         .catch((error) => {
-          console.error("Error adding assignment:", error);
-          Swal.fire({
-            icon: "error",
-            title: "Error",
-            text: "Error when trying to add the assignment.",
-          });
+          if (error.response) {
+            if (error.response.status === 400) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Bad request. Please check your input data.",
+              });
+            } else if (error.response.status === 409) {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Cannot Add assignment due to a conflict.",
+              });
+            } else {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Unexpected error occurred.",
+              });
+            }
+          } else {
+            console.error("Error adding assignment:", error);
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Error when trying to add the assignment.",
+            });
+          }
         });
     }
     setModalOpen(false);
   };
+  
 
   const handleDelete = (assignment) => {
     Swal.fire({
@@ -189,23 +259,116 @@ const TableAssignments = () => {
   };
 
   const columns = [
-    { name: "employeeCode", label: "Emp Id" },
-    { name: "employeeName", label: "Emp Name" },
-    { name: "employeePractice", label: "Emp Practice" },
-    { name: "projectOldCode", label: "Old/Current Project Code" },
-    { name: "projectNewCode", label: "New Project Code" },
-    { name: "practiceName", label: "WBS PRACTICE" },
-    { name: "percentage", label: "Allocation %" },
-    { name: "employeeRole", label: "Role" },
-    { name: "supervisorName", label: "Supervisor Name" },
-    { name: "supervisorCode", label: "Supervisor Code" },
-    { name: "startDate", label: "Start Date/Joining Date" },
-    { name: "endDate", label: "End Date" },
-    { name: "remark", label: "Remark" },
+    { 
+      name: "employeeCode", 
+      label: "Emp Id",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "employeeName", 
+      label: "Emp Name",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "employeePractice", 
+      label: "Emp Practice",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "projectOldCode", 
+      label: "Old/Current Project Code",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "projectNewCode", 
+      label: "New Project Code",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "practiceName", 
+      label: "WBS PRACTICE",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "percentage", 
+      label: "Allocation %",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "employeeRole", 
+      label: "Role",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "supervisorName", 
+      label: "Supervisor Name",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "supervisorCode", 
+      label: "Supervisor Code",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "startDate", 
+      label: "Allocation Start Date/Joining Date",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "endDate", 
+      label: "Allocation End Date",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
+    { 
+      name: "remark", 
+      label: "Remark",
+      options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } })
+      }
+    },
     {
       name: "Actions",
       label: "Actions",
       options: {
+        setCellProps: () => ({ style: { textAlign: 'center' } }),
+        setCellHeaderProps: () => ({ style: { textAlign: 'center' } }),
         filter: false,
         sort: false,
         empty: true,
@@ -221,8 +384,18 @@ const TableAssignments = () => {
       },
     },
   ];
-
+  
   const options = createOptions(handleAdd, columns);
+
+  if (loading) {
+    return <div className="loading-container">
+    <div className="spinner"></div>
+  </div> // Muestra un mensaje de carga mientras se obtienen los datos
+  }
+
+  if (error) {
+    return <div className="error-container">{error}</div>; // Muestra un mensaje de error si ocurre un error durante la obtención de datos
+  }
 
   return (
     <>

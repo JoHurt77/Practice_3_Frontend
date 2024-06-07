@@ -8,6 +8,7 @@ import Assignments from './pages/Assignments';
 import Employees from './pages/Employees';
 import Practices from './pages/Practices';
 import Projects from './pages/Projects';
+import "./styles/style.css";
 
 function App() {
   return (

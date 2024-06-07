@@ -50,6 +50,7 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
     handleSubmit(formData);
   };
 
+  //Modal personalizado para el form de Assignments
   return (
     <Modal open={open} onClose={handleClose}>
       <Box

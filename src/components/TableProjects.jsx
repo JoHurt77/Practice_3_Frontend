@@ -7,22 +7,28 @@ import createOptions from "./CustomDataTable";
 
 const TableProjects = () => {
   const [data, setData] = useState([]); // Estado para almacenar los datos
+  const [loading, setLoading] = useState(true); // Estado para manejar la carga de datos
+  const [error, setError] = useState(null); // Estado para manejar errores
 
   // useEffect para obtener los datos al montar el componente
   useEffect(() => {
-    fetchProyects();
+    fetchProjects();
   }, []);
 
   // Función para obtener los datos de los Proyectos desde la API
-  const fetchProyects = () => {
+  const fetchProjects = () => {
+    setLoading(true); // Inicia el estado de carga
+
     axios
       .get(process.env.REACT_APP_API_PROJECTS)
       .then((response) => {
         setData(response.data);
+        setLoading(false); // Finaliza el estado de carga, independientemente de si la solicitud fue exitosa o no
       })
       .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
+        setError("Error fetching data");
+        setLoading(false); // Finaliza el estado de carga, independientemente de si la solicitud fue exitosa o no
+      })
   };
 
   // Función para manejar la adición de un nuevo registro
@@ -52,7 +58,7 @@ const TableProjects = () => {
         axios
           .post(process.env.REACT_APP_API_PROJECTS, newProyect)
           .then(() => {
-            fetchProyects();
+            fetchProjects();
             Swal.fire({
               icon: "success",
               title: "Success!",
@@ -98,7 +104,7 @@ const TableProjects = () => {
         axios
           .put(`${process.env.REACT_APP_API_PROJECTS}/${practice.code}`, updatePractice)
           .then(() => {
-            fetchProyects();
+            fetchProjects();
             Swal.fire({
               icon: "success",
               title: "Success!",
@@ -134,7 +140,7 @@ const handleDelete = (project) => {
         .delete(`${process.env.REACT_APP_API_PROJECTS}/${project.code}`)
         .then((response) => {
           if (response.status === 200) {
-            fetchProyects();
+            fetchProjects();
             Swal.fire({
               title: "Success!",
               text: "The project has been successfully deleted.",
@@ -184,13 +190,13 @@ const handleDelete = (project) => {
 
   // Definición de las columnas de la tabla
   const columns = [
-    { name: "code", label: "Project" },
+    { name: "code", label: "Project", options: {sort:"true"}},
     {
       name: "Actions",
       label: "Actions",
       options: {
         filter: false,
-        sort: false,
+        sort: true,
         empty: true,
         customBodyRenderLite: (dataIndex) => {
           const project = data[dataIndex];
@@ -207,6 +213,16 @@ const handleDelete = (project) => {
 
   // Personalización de la tabla
   const options = createOptions(handleAdd, columns);
+
+  if (loading) {
+    return <div className="loading-container">
+    <div className="spinner"></div>
+  </div> // Muestra un mensaje de carga mientras se obtienen los datos
+  }
+
+  if (error) {
+    return <div className="error-container">{error}</div>; // Muestra un mensaje de error si ocurre un error durante la obtención de datos
+  }
 
   return (
     <MUIDataTable

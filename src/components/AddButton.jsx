@@ -3,6 +3,7 @@ import { IconButton } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
+//Boton para agregar un nuevo registro "+""
 const AddButton = ({ onAdd }) => {
   return (
     <React.Fragment>

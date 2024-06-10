@@ -52,19 +52,16 @@ const TableAssignments = () => {
     setModalOpen(true);
   };
 
-  // Formatea la fecha al formato yyyy-MM-dd
-  const formatDateForInput = (dateString) => {
-    if (dateString) {
-      const date = new Date(dateString);
-      if (!isNaN(date.getTime())) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      }
+// Formatea la fecha al formato dd-MM-yyyy
+const formatDateForInput = (dateString) => {
+  if (dateString) {
+    const [day, month, year] = dateString.split('-');
+    if (day && month && year) {
+      return `${day}-${month}-${year}`;
     }
-    return '';
-  };
+  }
+  return '';
+};
   
 
   const handleEdit = (assignment) => {

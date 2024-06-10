@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Grid, TextField, Button, Typography } from "@mui/material";
 
+// Formatea la fecha al formato yyyy-MM-dd
+const formatDateForInput = (dateString) => {
+  if (dateString) {
+    const [day, month, year] = dateString.split('-');
+    if (day && month && year) {
+      return `${year}-${month}-${day}`;
+    }
+  }
+  return '';
+};
+
 const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
   const [formData, setFormData] = useState({
     employeeCode: "",
@@ -12,7 +23,14 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
 
   useEffect(() => {
     if (initialData) {
-      setFormData(initialData);
+      setFormData({
+        ...initialData,
+        assignmentInfo: {
+          ...initialData.assignmentInfo,
+          startDate: formatDateForInput(initialData.assignmentInfo.startDate),
+          endDate: formatDateForInput(initialData.assignmentInfo.endDate),
+        }
+      });
     } else {
       setFormData({
         employeeCode: "",
@@ -50,7 +68,6 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
     handleSubmit(formData);
   };
 
-  //Modal personalizado para el form de Assignments
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -81,7 +98,6 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 required
               />
             </Grid>
-          
             <Grid item xs={6}>
               <TextField
                 fullWidth
@@ -122,8 +138,6 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 required
               />
             </Grid>
-            
-            
             <Grid item xs={6}>
               <TextField
                 fullWidth

@@ -212,7 +212,7 @@ const TableEmployees = () => {
         axios
           .delete(`${process.env.REACT_APP_API_EMPLOYEES}/${employee.code}`)
           .then((response) => {
-            if (response.status === 200) {
+            if (response.status === 204) {
               fetchEmployees();
               Swal.fire({
                 title: "Success!",

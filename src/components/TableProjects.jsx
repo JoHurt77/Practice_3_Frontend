@@ -190,7 +190,7 @@ const handleDelete = (project) => {
 
   // Definición de las columnas de la tabla
   const columns = [
-    { name: "code", label: "Project", options: {sort:"true"}},
+    { name: "code", label: "Project"},
     {
       name: "Actions",
       label: "Actions",

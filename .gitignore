@@ -7,8 +7,6 @@
 
 # testing
 /coverage
-/cypress
-cypress.config.js
 
 # production
 /build

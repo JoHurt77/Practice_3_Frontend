@@ -140,13 +140,21 @@ const handleDelete = (project) => {
         .delete(`${process.env.REACT_APP_API_PROJECTS}/${project.code}`)
         .then((response) => {
           if (response.status === 200) {
-            fetchProjects();
-            Swal.fire({
-              title: "Success!",
-              text: "The project has been successfully deleted.",
-              icon: "success",
-            });
-          } else {
+              fetchProjects();
+              Swal.fire({
+                title: "Success!",
+                text: "The practice has been successfully deleted.",
+                icon: "success",
+              });
+            } else if (response.status === 204) {
+              fetchProjects();
+              Swal.fire({
+                title: "Success!",
+                text: "The practice has been successfully deleted.",
+                icon: "success",
+              });
+            } 
+          else {
             throw new Error("Unexpected status code");
           }
         })

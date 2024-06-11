@@ -148,7 +148,15 @@ const TablePractices = () => {
                 text: "The practice has been successfully deleted.",
                 icon: "success",
               });
-            } else {
+            } else if (response.status === 204) {
+              fetchPractices();
+              Swal.fire({
+                title: "Success!",
+                text: "The practice has been successfully deleted.",
+                icon: "success",
+              });
+            } 
+            else {
               throw new Error("Unexpected status code");
             }
           })

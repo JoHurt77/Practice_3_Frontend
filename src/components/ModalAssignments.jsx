@@ -1,12 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Box, Grid, TextField, Button, Typography } from "@mui/material";
 
-// Formatea la fecha al formato yyyy-MM-dd
+// Formatea la fecha al formato yyyy-MM-dd para el input date
 const formatDateForInput = (dateString) => {
   if (dateString) {
     const [day, month, year] = dateString.split('-');
     if (day && month && year) {
       return `${year}-${month}-${day}`;
+    }
+  }
+  return '';
+};
+
+// Formatea la fecha al formato dd-MM-yyyy para el backend
+const formatDateForBackend = (dateString) => {
+  if (dateString) {
+    const [year, month, day] = dateString.split('-');
+    if (year && month && day) {
+      return `${day}-${month}-${year}`;
     }
   }
   return '';
@@ -65,7 +76,18 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
 
   const handleFormSubmit = (event) => {
     event.preventDefault();
-    handleSubmit(formData);
+
+    // Formatea las fechas para el backend
+    const formattedData = {
+      ...formData,
+      assignmentInfo: {
+        ...formData.assignmentInfo,
+        startDate: formatDateForBackend(formData.assignmentInfo.startDate),
+        endDate: formatDateForBackend(formData.assignmentInfo.endDate),
+      }
+    };
+
+    handleSubmit(formattedData);
   };
 
   return (
@@ -145,7 +167,6 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 name="assignmentInfo.percentage"
                 value={formData.assignmentInfo.percentage}
                 onChange={handleChange}
-                
               />
             </Grid>
             <Grid item xs={6}>
@@ -179,7 +200,6 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 name="assignmentInfo.remark"
                 value={formData.assignmentInfo.remark}
                 onChange={handleChange}
-                
               />
             </Grid>
             <Grid

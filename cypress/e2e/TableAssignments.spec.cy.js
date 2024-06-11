@@ -121,19 +121,6 @@ describe('Assignments Tests', () => {
     cy.get('#\\:r6d\\:').click();
     cy.get('#\\:r6f\\:').click();
     cy.get('#\\:r6h\\:').clear('P');
-    // cy.get('#\\:r6h\\:').type('Prueba');
-    // cy.get('.MuiButton-contained').click();
-    // cy.get('#swal2-html-container').should('have.text', 'The assignment has been successfully added.');
-    // cy.get('#swal2-title').should('have.text', 'Success!');
-    // cy.get('.swal2-popup').should('have.class', 'swal2-icon-success');
-    // cy.get('.swal2-confirm').click();
-    // cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
-    // cy.get('[data-testid="MuiDataTableBodyCell-2-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Prueba');
-    // cy.get('[data-testid="MuiDataTableBodyCell-4-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Prueba');
-    // cy.get('[data-testid="MuiDataTableBodyCell-0-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', '1');
-    // cy.get('[data-testid="MuiDataTableBodyCell-9-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', '1');
-
-
     cy.get('#\\:r6d\\:').clear('0002-03-11');
     cy.get('#\\:r6d\\:').type('2204-03-11');
     cy.get('#\\:r6f\\:').clear('0002-01-01');
@@ -152,26 +139,66 @@ describe('Assignments Tests', () => {
     cy.get('[data-testid="MuiDataTableBodyCell-9-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', '1');
   });
 
+  // Fail cases
+  it('Should FAIL to UPDATE an assignment', function() {
+    cy.get(':nth-child(1) > .svg-inline--fa').click();
+    cy.get('#\\:r1d\\:').clear('Prueba2');
+    cy.get('#\\:r1d\\:').type('Prueba2');
+    cy.get('.MuiButton-contained').click();
+    cy.get('#swal2-html-container').should('have.text', 'Cannot Update assignment due to a conflict.');
+    cy.get('.swal2-confirm').click();
+  });
 
-  // it('Should DELETE a field', function() {
 
-  //   cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
-  //   cy.get(':nth-child(2) > .svg-inline--fa > path').click();
-  //   cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete the assignment for Juan?');
-  //   cy.get('.swal2-popup').should('have.class', 'swal2-popup');
-  //   cy.get('.swal2-confirm').should('have.text', 'Yes, delete');
-  //   cy.get('.swal2-cancel').should('have.text', 'Cancel');
-  //   cy.get('.swal2-confirm').click();
-  //   cy.get('.swal2-confirm').click();
-  //   cy.get(':nth-child(2) > a').click();
-  //   cy.get(':nth-child(1) > a').click();
-  //   cy.get(':nth-child(2) > a').click();
-  //   cy.get(':nth-child(2) > .svg-inline--fa > path').click();
-  //   cy.get('.swal2-confirm').click();
-  //   cy.get('.swal2-confirm').click();
+  it('Should FAIL to DELETE an assignment', function() {
+    cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
+    cy.get(':nth-child(2) > a').click();
+    cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete Juan?');
+    cy.get('.swal2-confirm').click();
+    cy.get('#swal2-html-container').should('have.text', 'Cannot delete employee due to a conflict.');
+    cy.get('.swal2-confirm').click();
+    cy.get(':nth-child(3) > a').click();
+    cy.get('[data-testid="MuiDataTableBodyCell-0-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Prueba');
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('#swal2-title').click();
+    cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete Prueba?');
+    cy.get('.swal2-confirm').click();
+    cy.get('#swal2-html-container').should('have.text', 'Cannot delete practice due to a conflict.');
+    cy.get('.swal2-confirm').click();
+    cy.get(':nth-child(4) > a').click();
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete Prueba?');
+    cy.get('.swal2-confirm').click();
+    cy.get('#swal2-html-container').should('have.text', 'Cannot delete project due to a conflict.');
+    cy.get('.swal2-confirm').click();
+  });
 
-  // });
 
+
+  // Correct Cases
+  it('Should UPDATE an assignment', function() {
+   cy.get(':nth-child(3) > a').click();
+   cy.get('[title="Add New Field"] > .svg-inline--fa').click();
+   cy.get('#code').clear('P');
+   cy.get('#code').type('Prueba2');
+   cy.get('.swal2-confirm').click();
+   cy.get('.swal2-confirm').click();
+   cy.get(':nth-child(1) > a').click();
+   cy.get('[data-testid="MuiDataTableBodyCell-2-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Prueba');
+   cy.get(':nth-child(1) > .svg-inline--fa').click();
+   cy.get('#\\:r3l\\:').clear('P');
+   cy.get('#\\:r3l\\:').type('Prueba2');
+   cy.get('#\\:r3t\\:').clear('0002-01-01');
+   cy.get('#\\:r3t\\:').type('2024-01-01');
+   cy.get('#\\:r3v\\:').clear('0002-03-11');
+   cy.get('#\\:r3v\\:').type('2024-03-11');
+   cy.get('.MuiButton-contained').click();
+   cy.get('#swal2-html-container').should('have.text', 'The assignment has been successfully updated.');
+   cy.get('.swal2-confirm').click();
+   cy.get('[data-testid="MuiDataTableBodyCell-5-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Prueba2');
+ });
 
 
   // it('Should FAIL to DELETE a field', function() {
@@ -200,4 +227,66 @@ describe('Assignments Tests', () => {
   //   cy.get('#swal2-html-container').should('have.text', 'Cannot delete project due to a conflict.');
   //   cy.get('.swal2-confirm').click();
   // });
+
+
+  // it('Should DELETE a field', function() {
+  //   cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
+  //   cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+  //   cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete the assignment for Juan?');
+  //   cy.get('.swal2-popup').should('have.class', 'swal2-popup');
+  //   cy.get('.swal2-confirm').should('have.text', 'Yes, delete');
+  //   cy.get('.swal2-cancel').should('have.text', 'Cancel');
+  //   cy.get('.swal2-confirm').click();
+  //   cy.get('.swal2-confirm').click();
+  //   cy.get(':nth-child(2) > a').click();
+  //   cy.get(':nth-child(1) > a').click();
+  //   cy.get(':nth-child(2) > a').click();
+  //   cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+  //   cy.get('.swal2-confirm').click();
+  //   cy.get('.swal2-confirm').click();
+  // });
+
+
+
+  it('Should FAIL to DELETE an Employee who is being using in assignments', function() {
+    cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
+    cy.get(':nth-child(2) > a').click();
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete Juan?');
+    cy.get('.swal2-confirm').click();
+    cy.get('#swal2-html-container').should('have.text', 'Cannot delete employee due to a conflict.');
+    cy.get('.swal2-confirm').click();
+  });
+
+  it('Should DELETE a field', function() {
+    cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root').should('have.text', 'Juan');
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('#swal2-title').should('have.text', 'Are you sure you want to delete the assignment for Juan?');
+    cy.get('.swal2-popup').should('have.class', 'swal2-popup');
+    cy.get('.swal2-confirm').should('have.text', 'Yes, delete');
+    cy.get('.swal2-cancel').should('have.text', 'Cancel');
+    cy.get('.swal2-confirm').click();
+    cy.get('.swal2-confirm').click();
+    cy.get(':nth-child(2) > a').click();
+    cy.get(':nth-child(1) > a').click();
+    cy.get(':nth-child(2) > a').click();
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('.swal2-confirm').click();
+    cy.get('.swal2-confirm').click();
+  });
+
+  
+  it('Should DELETE the Practices and Projects', function() {
+    cy.get(':nth-child(3) > a').click();
+    cy.get('[data-testid="MuiDataTableBodyCell-1-0"] > .tss-1qtl85h-MUIDataTableBodyCell-root > div > :nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('.swal2-confirm').click();
+    cy.get('.swal2-confirm').click();
+    cy.get(':nth-child(2) > .svg-inline--fa > path').click();
+    cy.get('.swal2-confirm').click();
+    cy.get('.swal2-confirm').click();
+    cy.get(':nth-child(4) > a').click();
+    cy.get('.tss-1qtl85h-MUIDataTableBodyCell-root > div > :nth-child(2)').click();
+    cy.get('.swal2-confirm').click();
+    cy.get('.swal2-confirm').click();    
+  });
 })

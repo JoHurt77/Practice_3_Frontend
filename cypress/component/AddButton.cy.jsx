@@ -1,8 +1,8 @@
 /* eslint-disable no-undef */
 import React from 'react';
-import AddButton from '../../src/components/AddButton'; // Ajusta la ruta según la estructura de tu proyecto
+import AddButton from '../../src/components/AddButton'; 
 
-describe('<AddButton />', () => {
+describe('AddButton test', () => {
   it('renders', () => {
     cy.mount(<AddButton />);
     cy.get('button').should('exist'); // Verifica que el botón se renderiza
@@ -10,7 +10,7 @@ describe('<AddButton />', () => {
 
   it('has the correct title attribute', () => {
     cy.mount(<AddButton />);
-    cy.get('button').should('have.attr', 'title', 'Add New Field'); // Verifica el atributo title
+    cy.get('button').should('have.attr', 'title', 'Add New Field'); 
   });
 
   it('renders the FontAwesomeIcon with correct icon', () => {

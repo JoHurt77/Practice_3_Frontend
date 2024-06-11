@@ -32,7 +32,7 @@ const TableAssignments = () => {
           supervisorName: item.supervisor.name,
           projectOldCode: item.project.oldCode,
           projectNewCode: item.project.newCode,
-          assignmentCode: item.assignmentInfo.code,
+          assignmentCode: item.assignmentInfo.code,  // Asegúrate de incluir assignmentCode aquí
           remark: item.assignmentInfo.remark,
           percentage: item.assignmentInfo.percentage,
           startDate: item.assignmentInfo.startDate,
@@ -46,28 +46,26 @@ const TableAssignments = () => {
         setLoading(false); // Finaliza el estado de carga, independientemente de si la solicitud fue exitosa o no
       });
   };
-
+  
   const handleAdd = () => {
     setModalInitialData(null);
     setModalOpen(true);
   };
-
-// Formatea la fecha al formato dd-MM-yyyy
-const formatDateForInput = (dateString) => {
-  if (dateString) {
-    const [day, month, year] = dateString.split('-');
-    if (day && month && year) {
-      return `${day}-${month}-${year}`;
-    }
-  }
-  return '';
-};
   
-
+  // Formatea la fecha al formato dd-MM-yyyy
+  const formatDateForInput = (dateString) => {
+    if (dateString) {
+      const [day, month, year] = dateString.split('-');
+      if (day && month && year) {
+        return `${day}-${month}-${year}`;
+      }
+    }
+    return '';
+  };
+  
   const handleEdit = (assignment) => {
     setModalInitialData({
       employeeCode: assignment.employeeCode,
-      
       supervisorCode: assignment.supervisorCode,
       project: {
         oldCode: assignment.projectOldCode,
@@ -80,15 +78,19 @@ const formatDateForInput = (dateString) => {
         endDate: formatDateForInput(assignment.endDate),
       },
       practiceName: assignment.practiceName,
+      assignmentCode: assignment.assignmentCode,  // Incluye assignmentCode en modalInitialData
     });
     setModalOpen(true);
   };
 
+  
+
   const handleSubmit = (formData) => {
     if (modalInitialData) {
+      const assignmentCode = modalInitialData.assignmentCode;  // Obtén assignmentCode desde modalInitialData
       // Editar asignación existente
       axios
-        .put(`${process.env.REACT_APP_API_ASSIGNMENTS}/${formData.employeeCode}`, formData)
+        .put(`${process.env.REACT_APP_API_ASSIGNMENTS}/${assignmentCode}`, formData)
         .then((response) => {
           if (response.status === 204) {
             fetchAssignments();
@@ -204,9 +206,9 @@ const formatDateForInput = (dateString) => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`${process.env.REACT_APP_API_ASSIGNMENTS}/${assignment.employeeCode}`)
+          .delete(`${process.env.REACT_APP_API_ASSIGNMENTS}/${assignment.assignmentCode}`)
           .then((response) => {
-            if (response.status === 200) {
+            if (response.status === 204) {
               fetchAssignments();
               Swal.fire({
                 title: "Success!",
@@ -384,10 +386,11 @@ const formatDateForInput = (dateString) => {
   
   const options = createOptions(handleAdd, columns);
 
+  // Muestra un mensaje de carga mientras se obtienen los datos
   if (loading) {
     return <div className="loading-container">
     <div className="spinner"></div>
-  </div> // Muestra un mensaje de carga mientras se obtienen los datos
+  </div> 
   }
 
   if (error) {

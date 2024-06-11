@@ -145,7 +145,7 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 name="assignmentInfo.percentage"
                 value={formData.assignmentInfo.percentage}
                 onChange={handleChange}
-                required
+                
               />
             </Grid>
             <Grid item xs={6}>
@@ -179,7 +179,7 @@ const ModalAssignments = ({ open, handleClose, handleSubmit, initialData }) => {
                 name="assignmentInfo.remark"
                 value={formData.assignmentInfo.remark}
                 onChange={handleChange}
-                required
+                
               />
             </Grid>
             <Grid
